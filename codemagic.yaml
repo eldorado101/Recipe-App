@@ -79,17 +79,4 @@ workflows:
           success: true
           failure: true
 
-      # Publish to Firebase App Distribution (optional)
-      firebase:
-        android:
-          app_id: your_firebase_app_id_for_android # Replace with your Firebase Android app ID
-          groups: testers # Firebase group for testers
-        ios:
-          app_id: your_firebase_app_id_for_ios # Replace with your Firebase iOS app ID
-          groups: testers # Firebase group for testers
-
-      # Publish to TestFlight (optional)
-      app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY # Replace with your App Store Connect API key
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID # Replace with your App Store Connect Issuer ID
-        key_id: $APP_STORE_CONNECT_KEY_ID # Replace with your App Store Connect Key ID
+    
