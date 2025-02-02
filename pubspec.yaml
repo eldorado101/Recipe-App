@@ -1,0 +1,27 @@
+name: recipes_app
+description: A cross-platform recipe app for Android and iOS.
+
+publish_to: 'none' # Remove this line if you plan to publish the app
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.15.0 # For making API calls
+  provider: ^6.0.0 # For state management
+  shared_preferences: ^2.0.0 # For saving favorites
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/ # Add your image assets here
