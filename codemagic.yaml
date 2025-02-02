@@ -1,0 +1,95 @@
+# codemagic.yaml
+
+# Workflow name
+workflows:
+  recipe-app-workflow:
+    name: Recipe App Build and Deploy
+    max_build_duration: 60 # Maximum build time in minutes
+
+    # Trigger this workflow on push to main branch
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    # Environment setup
+    environment:
+      flutter: stable # Use the stable version of Flutter
+      xcode: latest # Use the latest Xcode version for iOS builds
+
+    # Cache dependencies to speed up builds
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Developer/Xcode/DerivedData
+
+    # Build scripts
+    scripts:
+      # Install Flutter dependencies
+      - name: Install Flutter dependencies
+        script: |
+          flutter pub get
+
+      # Run Flutter tests
+      - name: Run Flutter tests
+        script: |
+          flutter test
+
+      # Build Android APK/App Bundle
+      - name: Build Android Release APK
+        script: |
+          flutter build apk --release
+
+      - name: Build Android App Bundle (AAB)
+        script: |
+          flutter build appbundle --release
+
+      # Build iOS IPA
+      - name: Set up code signing for iOS
+        script: |
+          echo $APPLE_CERTIFICATES | base64 --decode > /tmp/apple-certificates.p12
+          echo $APPLE_PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
+          keychain initialize
+          keychain add-certificates /tmp/apple-certificates.p12 $CERTIFICATE_PASSWORD
+          provisioning-profile install /tmp/profile.mobileprovision
+
+      - name: Build iOS Release IPA
+        script: |
+          flutter build ios --release --no-codesign
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner \
+            --export-options-plist ios/export_options.plist
+
+    # Artifacts to publish
+    artifacts:
+      - build/app/outputs/apk/release/*.apk # Android APK
+      - build/app/outputs/bundle/release/*.aab # Android App Bundle
+      - build/ios/ipa/*.ipa # iOS IPA
+
+    # Publish to external services (optional)
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com # Replace with your email
+        notify:
+          success: true
+          failure: true
+
+      # Publish to Firebase App Distribution (optional)
+      firebase:
+        android:
+          app_id: your_firebase_app_id_for_android # Replace with your Firebase Android app ID
+          groups: testers # Firebase group for testers
+        ios:
+          app_id: your_firebase_app_id_for_ios # Replace with your Firebase iOS app ID
+          groups: testers # Firebase group for testers
+
+      # Publish to TestFlight (optional)
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_API_KEY # Replace with your App Store Connect API key
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID # Replace with your App Store Connect Issuer ID
+        key_id: $APP_STORE_CONNECT_KEY_ID # Replace with your App Store Connect Key ID
